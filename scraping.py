@@ -53,5 +53,53 @@ if response.status_code == 200:
             print("Énergie:", energie)
         else:
             print("Pas assez d'éléments pour extraire les caractéristiques complètes.")
+
+        a_elements = vehicle_element.find_all("a", class_="Vehiculecard_Vehiculecard_vehiculeCard")
+
+        for a_element in a_elements:
+            href_value = a_element.get("href")
+
+        url_car = "https://www.lacentrale.fr"+href_value
+
+        # Envoyer une requête GET au site
+        response_car = requests.get(url_car)
+
+        # Vérifier si la requête a réussi
+        if response_car.status_code == 200:
+            # Utiliser Beautiful Soup pour analyser la page HTML
+            soup = BeautifulSoup(response_car.content, "html.parser")
+            
+            # Trouver tous les éléments qui contiennent les informations
+            vehicle_info = soup.find("div", class_="GeneralInformation_grid__H0Uma")
+
+            # Trouver l'élément li avec l'ID "technicalControl"
+            li_ct = vehicle_info.find('li', id='technicalControl')
+
+            # Vérifier si l'élément li a été trouvé
+            if li_ct:
+                # Trouver l'élément span à l'intérieur de l'élément li
+                span_ct = li_ct.find('span', class_='Text_Text_text Text_Text_body1')
+                
+                # Vérifier si l'élément span a été trouvé
+                if span_ct:
+                    technicalControl = span_ct.text
+                    print("Contrôle Technique :", technicalControl)
+                else:
+                    print("Contrôle Technique non renseigné")
+
+            # Trouver l'élément li avec l'ID "firstHand"
+            li_fh = vehicle_info.find('li', id='firstHand')
+
+            # Vérifier si l'élément li a été trouvé
+            if li_fh:
+                # Trouver l'élément span à l'intérieur de l'élément li
+                span_fh = li_fh.find('span', class_='Text_Text_text Text_Text_body1')
+                
+                # Vérifier si l'élément span a été trouvé
+                if span_fh:
+                    firstHand = span_fh.text
+                    print("Première Main :", firstHand)
+                else:
+                    print("Première Main non renseignée")
 else:
     print("La requête a échoué avec le code:", response.status_code)
