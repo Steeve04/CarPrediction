@@ -27,6 +27,10 @@ if response.status_code == 200:
             marque = marques.text
         else:
             marque = None
+        price_element = vehicle_element.find("span", class_="Vehiculecard_Vehiculecard_price")
+        if price_element:
+            price = price_element.get_text(strip=True)
+            price = price.replace("€", "").replace(" ", "")
         features = vehicle_element.find("div", class_="Vehiculecard_Vehiculecard_characteristics")
         if features is not None:
             features = features
@@ -35,6 +39,7 @@ if response.status_code == 200:
             features = None
 
         print("Marque:", marque)
+        print("Prix:", price)
     
         if len(characteristics) >= 4:
             annee = characteristics[0].text.strip()
