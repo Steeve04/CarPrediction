@@ -19,8 +19,8 @@ doors = []
 seats = []
 ratedHorsePower = []
 
-# Parcourt les 6 premières pages du site
-for page in range(1, 7):
+# Parcourt les 240 premières pages du site
+for page in range(1, 241):
 
     # URL du site cible en filtrant sur les 5 derniéres années
     url = "https://www.lacentrale.fr/listing?makesModelsCommercialNames=&options=&page="+str(page)+"&yearMin="+min_year
@@ -33,7 +33,7 @@ for page in range(1, 7):
         print('Connexion établie sur lacentrale.fr')
         # Utiliser Beautiful Soup pour analyser la page HTML
         soup = BeautifulSoup(response.content, "html.parser")
-        
+
         # Tous les éléments qui contiennent les informations des voitures
         vehicle_elements = soup.find_all("div", class_="searchCardContainer")
 
@@ -45,7 +45,7 @@ for page in range(1, 7):
                 marque = marques.text
             else:
                 marque = None
-            # Extraction du prix    
+            # Extraction du prix
             price_element = vehicle_element.find("span", class_="Vehiculecard_Vehiculecard_price")
             if price_element:
                 prix = price_element.get_text(strip=True)
@@ -57,7 +57,7 @@ for page in range(1, 7):
                 characteristics = features.find_all("div", class_="Text_Text_text")
             else:
                 features = None
-        
+
             # Vérification de l'existence d'au moins une caractéristique
             if len(characteristics) >= 4:
                 # Séparation des principales caractéristiques
@@ -83,7 +83,7 @@ for page in range(1, 7):
             if response_car.status_code == 200:
                 # Utilisation de Beautiful Soup pour analyser la page HTML
                 soup = BeautifulSoup(response_car.content, "html.parser")
-                
+
                 # Tous les éléments qui contiennent les informations
                 vehicle_info = soup.find("div", class_="GeneralInformation_grid__H0Uma")
 
@@ -94,7 +94,7 @@ for page in range(1, 7):
                 if li_ct:
                     # Extraction de l'élément span à l'intérieur de l'élément li
                     span_ct = li_ct.find('span', class_='Text_Text_text Text_Text_body1')
-                    
+
                     # Si l'élément span a été trouvé
                     if span_ct:
                         controleTech = span_ct.text
@@ -108,7 +108,7 @@ for page in range(1, 7):
                 if li_fh:
                     # Extraction de l'élément span à l'intérieur de l'élément li
                     span_fh = li_fh.find('span', class_='Text_Text_text Text_Text_body1')
-                    
+
                     # Si l'élément span a été trouvé
                     if span_fh:
                         premMain = span_fh.text
@@ -122,7 +122,7 @@ for page in range(1, 7):
                 if li_d:
                     # Extraction de l'élément span à l'intérieur de l'élément li
                     span_d = li_d.find('span', class_='Text_Text_text Text_Text_body1')
-                    
+
                     # Si l'élément span a été trouvé
                     if span_d:
                         porte = span_d.text
@@ -131,12 +131,12 @@ for page in range(1, 7):
 
                 # Extraction de l'élément li avec l'ID "seats"
                 li_s = vehicle_info.find('li', id='seats')
-                
+
                 # Si l'élément li a été trouvé
                 if li_s:
                     # Extraction de l'élément span à l'intérieur de l'élément li
                     span_s = li_s.find('span', class_='Text_Text_text Text_Text_body1')
-                    
+
                     # Si l'élément span a été trouvé
                     if span_s:
                         place = span_s.text
@@ -145,12 +145,12 @@ for page in range(1, 7):
 
                 # Extraction de l'élément li avec l'ID "ratedHorsePower"
                 li_rhp = vehicle_info.find('li', id='ratedHorsePower')
-                
+
                 # Si l'élément li a été trouvé
                 if li_rhp:
                     # Extraction de l'élément span à l'intérieur de l'élément li
                     span_rhp = li_rhp.find('span', class_='Text_Text_text Text_Text_body1')
-                    
+
                     # Si l'élément span a été trouvé
                     if span_rhp:
                         puissance = span_rhp.text.replace(' CV', '')
