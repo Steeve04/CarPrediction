@@ -16,7 +16,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 # Lecture de la source de données suite au scraping sur le site lacentrale.fr
 df = pd.read_csv('/content/cars.csv')
 
-# Affichage des 10 premières lignes 
+# Affichage des 10 premières lignes
 df.head(10)
 
 # Structure
@@ -75,49 +75,50 @@ R2_test = []
 def prediction_model(model,model_name):
     # Entraînement du modèle
     model.fit(X_train,y_train)
-            
+
     # R2 score du dataset d'entraînement
     y_pred_train = model.predict(X_train)
     R2_train_model = r2_score(y_train,y_pred_train)
     R2_train.append(round(R2_train_model,2))
-    
+
     # R2 score du dataset de test
     y_pred_test = model.predict(X_test)
     R2_test_model = r2_score(y_test,y_pred_test)
     R2_test.append(round(R2_test_model,2))
-    
+
     # R2 score moyen du dataset d'entraînement en utilisant la validation croisée
     cross_val = cross_val_score(model ,X_train ,y_train ,cv=5)
     cv_mean = cross_val.mean()
     CV.append(round(cv_mean,2))
-    
+
     # Affichage des résultats
     print("Train R2-score :",round(R2_train_model,2))
     print("Test R2-score :",round(R2_test_model,2))
     print("Train CV scores :",cross_val)
     print("Train CV mean :",round(cv_mean,2))
-    
+
     # Graphique résiduel des données d'entraînement
     fig, ax = plt.subplots(1,2,figsize = (10,4))
     ax[0].set_title('Graphique résiduel des données d\'entraînement')
-    sns.distplot((y_train-y_pred_train),hist = False,ax = ax[0])
+    #sns.distplot((y_train-y_pred_train),hist = False,ax = ax[0])
+    sns.histplot(data=y_train-y_pred_train, ax = ax[0], kde=True)
     ax[0].set_xlabel('y_train - y_pred_train')
-    
+
     # Diagramme de dispersion Y_test vs Y_train
     ax[1].set_title('y_test vs y_pred_test')
     ax[1].scatter(x = y_test, y = y_pred_test)
     ax[1].set_xlabel('y_test')
     ax[1].set_ylabel('y_pred_test')
-    
+
     plt.show()
 
-### Modèle Régression Linéaire
+###### Modèle Régression Linéaire ######
 lr = LinearRegression()
 
 # Entraînement du modèle
 prediction_model(lr,"Linear_regressor.pkl")
 
-### Modèle Régression Ridge
+###### Modèle Régression Ridge ######
 rg = Ridge()
 
 # Vecteur alpha avec 14 valeurs qui varient entre 10^-3 (0.001) et 10^3 (1000) en échelle logarithmique
@@ -129,7 +130,7 @@ rg_rs = RandomizedSearchCV(estimator = rg, param_distributions = dict(alpha=alph
 # Entraînement du modèle
 prediction_model(rg_rs,"ridge.pkl")
 
-### Modèle Régression Lasso
+###### Modèle Régression Lasso ######
 # Création d'un objet du modèle Lasso
 ls = Lasso()
 
@@ -142,7 +143,7 @@ ls_rs = RandomizedSearchCV(estimator = ls, param_distributions = dict(alpha=alph
 # Entraînement du modèle
 prediction_model(ls_rs,"lasso.pkl")
 
-### Modèle Forêt Aléatoire
+###### Modèle Forêt Aléatoire ######
 rf = RandomForestRegressor()
 
 # Nombre d'arbres dans la Forêt aléatoire
@@ -173,10 +174,7 @@ rf_rs = RandomizedSearchCV(estimator = rf, param_distributions = param_grid)
 # Entraînement du modèle
 prediction_model(rf_rs,'random_forest.pkl')
 
-# Afficher les meilleurs paramètres
-print(rf_rs.best_estimator_)
-
-### Modèle Regression Gradient Booting
+###### Modèle Regression Gradient Booting ######
 gb = GradientBoostingRegressor()
 
 # Taux de correction
@@ -210,3 +208,32 @@ gb_rs = RandomizedSearchCV(estimator = gb, param_distributions = param_grid)
 
 # Entraînement du modèle
 prediction_model(gb_rs,"gradient_boosting.pkl")
+
+# Afficher les meilleurs paramètres
+print(gb_rs.best_estimator_)
+
+###### Utilisation du modèle Gradient Boosting pour la prédiction ######
+# Meilleur modèle après recherche aléatoire
+best_gb_model = gb_rs.best_estimator_
+
+# Exemple d'une nouvelle voiture (données en entrée)
+new_car = pd.DataFrame({
+    'Annee': [2018],
+    'Kilometrage': [100000],
+    'Boite_Vitesse': [0],
+    'Energie': [2],
+    'Controle_Technique': [0],
+    'Premiere Main': [0],
+    'Portes': [5],
+    'Places': [7],
+    'Puissance': [5]
+})
+
+# Utilisation du modèle pour faire une prédiction
+predicted_price = best_gb_model.predict(new_car)
+
+# Prix arrondi en entier
+rounded_price = int(round(predicted_price[0]))
+
+# Affichage de la prédiction
+print("Prix prédit:", rounded_price, "€")
